@@ -6,9 +6,11 @@ import static org.acme.redis.DemoIndex.LM_INDEX;
 
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.pubsub.PubSubCommands;
+import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,8 +32,11 @@ public class DSListener implements Consumer<Notification> {
     log.info(notification.toString());
   }
 
-  @PreDestroy
-  public void terminate() {
+
+  public void terminate(@Observes final ShutdownEvent ev) {
+
+    log.info("Unsubscribing redis channel");
+
     subscriber.unsubscribe(); // Unsubscribe from all subscribed channels
   }
 }
